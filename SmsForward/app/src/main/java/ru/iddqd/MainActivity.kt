@@ -47,8 +47,6 @@ class MainActivity : Activity() {
         setContentView(R.layout.activity_main)
 
         mNumberView = findViewById(R.id.forwardingNumber) as EditText
-
-        AlarmReceiver.schedule(this, 60 * 30 * 1000) // every 30 minutes approx
     }
 
     override fun onResume() {
@@ -70,11 +68,8 @@ class MainActivity : Activity() {
     }
 
     companion object {
-        val SHARED_PREF = "ru.iddqd.PREF"
+        val SHARED_PREF = "ru.iddqd.PREF.SEV"
         val FORWARDING_NUMBER_KEY = "forwardTo"
-        val LAST_SMS_TIME_KEY = "lastSms"
-        val LAST_CREDITS_KEY = "lastCredits"
-        val LAST_LOW_POWER_SMS_TIME_KEY = "lastLowPowerSms"
 
         @JvmStatic
         fun getForwardingNumber(ctx: Context): String? {
@@ -89,54 +84,5 @@ class MainActivity : Activity() {
             editor.putString(FORWARDING_NUMBER_KEY, num)
             editor.commit()
         }
-
-
-        @JvmStatic
-        fun getLastSmsTime(ctx: Context): Long {
-            val prefs = ctx.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
-            return prefs.getLong(LAST_SMS_TIME_KEY, 0)
-        }
-
-        @JvmStatic
-        fun setLastSmsTime(ctx: Context, time: Long) {
-            val prefs = ctx.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
-            val editor = prefs.edit()
-            editor.putLong(LAST_SMS_TIME_KEY, time)
-            editor.commit()
-        }
-
-
-        @JvmStatic
-        fun getLastSmsCredits(ctx: Context): Long {
-            val prefs = ctx.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
-            return prefs.getLong(LAST_CREDITS_KEY, (3600 * 20).toLong()) // 1 sms consumes 3600 credits. Each 1 seconds since last msg adds up one credit, but not exceeding total amount of 36000.
-            // So not allowing more than 1 sms/hr on average, 
-            // but allowing to "burst" these messages in a short period of time if necessary (but no more than 20 msgs in row)
-        }
-
-        @JvmStatic
-        fun setLastSmsCredits(ctx: Context, time: Long) {
-            val prefs = ctx.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
-            val editor = prefs.edit()
-            editor.putLong(LAST_CREDITS_KEY, time)
-            editor.commit()
-        }
-
-
-        @JvmStatic
-        fun getLastLowBatterySms(ctx: Context): Long {
-            val prefs = ctx.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
-            return prefs.getLong(LAST_LOW_POWER_SMS_TIME_KEY, 0)
-        }
-
-        @JvmStatic
-        fun setLastLowBatterySms(ctx: Context, time: Long) {
-            val prefs = ctx.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
-            val editor = prefs.edit()
-            editor.putLong(LAST_LOW_POWER_SMS_TIME_KEY, time)
-            editor.commit()
-        }
-
-
     }
 }

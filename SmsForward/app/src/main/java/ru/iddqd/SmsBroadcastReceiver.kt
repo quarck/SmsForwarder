@@ -50,109 +50,17 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
 
             if (forwardingNumber != null && !forwardingNumber.equals("", ignoreCase = true)) {
 
-                Log.d("SMSFW", "about to forward message to $forwardingNumber, text: ${messages.messageBody}")
-
-                forwardMessage(context, forwardingNumber, messages)
+                val msgBody = messages.messageBody
+                if (msgBody.toLowerCase().startsWith("your sevens taxi")) {
+                    Log.d("SMSFW", "about to forward message to $forwardingNumber, text: ${messages.messageBody}")
+                    forwardMessage(context, forwardingNumber, msgBody)
+                }
             }
         }
     }
 
-    private fun forwardMessage(ctx: Context, to: String, message: SmsMessage) {
-        val from = message.originatingAddress
-
-        Log.d("SMSFW", "forwardMessage: from=$from, to=$to")
-
-        if (from != null && from == to) {
-            doReply(ctx, to, message)
-        } else {
-            val contacts = Contacts(ctx)
-            val code = contacts.storeContact(from)
-            val isBanned = contacts.isBanned(from)
-            if (!isBanned)
-                doForwardMessage(ctx, code, from, to, message)
-        }
-
-    }
-
-    private fun doForwardMessage(ctx: Context, code: String?, from: String, to: String, message: SmsMessage) {
-        //		if (to.eq)
+    private fun forwardMessage(ctx: Context, to: String, message: String) {
         Log.d("SMSFW", "doForwardMessage.")
-
-        val time = System.currentTimeMillis() / 1000
-
-        var credits = MainActivity.getLastSmsCredits(ctx)
-
-        val lastSmsTime = MainActivity.getLastSmsTime(ctx)
-        if (lastSmsTime != 0L) {
-            val timeSinceLast = time - lastSmsTime
-
-            credits += timeSinceLast
-            if (credits > 3600 * 20)
-                credits = (3600 * 20).toLong() // cap
-        }
-
-        Log.d("SMSFW", "doForwardMessage: credits = $credits")
-
-        if (credits > 0) {
-
-            val prefix = from + (code?.let{ " [$it]"} ?: "") + ": "
-            val msgBody = prefix + message.messageBody
-
-            SmsUtil.sendLong(to, msgBody, 2000)
-
-            credits -= 3600
-
-            MainActivity.setLastSmsTime(ctx, time)
-        }
-
-        MainActivity.setLastSmsCredits(ctx, credits)
-    }
-
-    private fun doReply(ctx: Context, to: String, message: SmsMessage)
-    {
-        Log.d("SMSFW", "doReply: to=$to")
-
-        val msgBody: String? = message.messageBody
-
-        if (msgBody == null)
-            return
-
-        Log.d("SMSFW", "doReply: to=$to, msgBody=$msgBody")
-
-        val pos = msgBody.indexOf(" ")
-
-        if (pos >= 3 && pos <= 6) {
-
-            val code = msgBody.substring(0, pos)
-            val msg = msgBody.substring(pos+1)
-
-            Log.d("SMSFW", "doReply: code=$code, msg=$msg")
-
-            val contacts = Contacts(ctx)
-
-            if (code.startsWith("!")) {
-                if (code == "!ban" || code == "!unban") {
-                    val contact = contacts.lookupContactByCode(msg.toUpperCase())
-                    if (contact != null) {
-                        val isBanned = code == "!ban"
-                        contacts.setBanned(contact, isBanned)
-
-                        if (isBanned)
-                            SmsUtil.sendLong(to, "Banned: $contact", 1000)
-                        else
-                            SmsUtil.sendLong(to, "Un-banned: $contact", 1000)
-                    }
-                }
-            } else {
-                val contact = contacts.lookupContactByCode(code.toUpperCase())
-                if (contact != null) {
-                    Log.d("SMSFW", "doReply: sending to $contact")
-                    SmsUtil.sendLong(contact, msg, 1000)
-                } else {
-                    Log.d("SMSFW", "doReply: contact not found")
-                    SmsUtil.sendLong(to, "Unrecognized: $code", 1000)
-                }
-            }
-        }
+        SmsUtil.sendLong(to, message, 2000)
     }
 }
