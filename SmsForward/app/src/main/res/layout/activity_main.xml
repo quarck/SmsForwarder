@@ -1,0 +1,38 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity" >
+
+    <ScrollView
+        android:id="@+id/set_password_form"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <LinearLayout
+            style="@style/SetPasswordFormContainer"
+            android:orientation="vertical" >
+
+            <EditText
+                android:id="@+id/forwardingNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Number"
+                android:imeActionId="@+id/setNumber"
+                android:imeActionLabel="set number"
+                android:imeOptions="actionUnspecified"
+                android:maxLines="1"
+                android:singleLine="true" />
+                        
+            <Button
+                android:id="@+id/setNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginTop="16dp"
+                android:paddingLeft="32dp"
+                android:paddingRight="32dp"
+                android:text="Set" 
+                android:onClick="setNumber"/>
+	            
+            </LinearLayout>
+    </ScrollView>
+</merge>
