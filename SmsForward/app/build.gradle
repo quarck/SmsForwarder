@@ -6,8 +6,8 @@ android {
     buildToolsVersion '26.0.2'
 
     defaultConfig {
-        applicationId "ru.iddqd.sevens"
-        minSdkVersion 26
+        applicationId "ru.sevenshack"
+        minSdkVersion 23
         targetSdkVersion 26
 
         versionCode 1

@@ -26,38 +26,55 @@
  */
 
 
-package ru.iddqd
+package ru.sevenshack;
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.os.Bundle
-import android.telephony.SmsMessage
-import android.util.Log
+import android.telephony.SmsManager;
+import android.util.Log;
 
-class SmsBroadcastReceiver : BroadcastReceiver() {
+public class SmsUtil 
+{
+    public static void sendLong(String dst, String msg, long sleepMillis)
+    {
+        int chunkLength = 160;
 
-    override fun onReceive(context: Context, intent: Intent) {
+        int indexFrom = 0;
 
-        val forwardingNumber = MainActivity.getForwardingNumber(context)
+        while (indexFrom < msg.length()) {
 
-        if (forwardingNumber == null || forwardingNumber.equals("", ignoreCase = true)) {
-            return
-        }
+            int indexTo = Math.min(indexFrom + chunkLength, msg.length());
 
-        val pudsBundle = intent.extras
+            String chunk = msg.substring(indexFrom, indexTo);
 
-        val pdus = pudsBundle.get("pdus") as Array<Any>
+            SmsUtil.send(dst, chunk, sleepMillis);
 
-        for (pdu in pdus) {
-
-            val messages = SmsMessage.createFromPdu(pdu as ByteArray)
-            val msgBody = messages.messageBody
-
-            if (msgBody.toLowerCase().startsWith("your sevens taxi")) {
-                Log.d("SMSFW", "about to forward message to $forwardingNumber, text: $msgBody")
-                SmsUtil.sendLong(forwardingNumber, msgBody, 2000)
-            }
+            indexFrom += chunkLength;
         }
     }
+
+	public static void send(String dst, String msg, long sleepMillis) 
+	{
+		try 
+		{
+			if (dst != null)
+			{
+                Log.d("SmsUtil", "send: " + dst + ": " + msg);
+
+				SmsManager smsMgr = SmsManager.getDefault();
+				
+				if (smsMgr != null)
+					smsMgr.sendTextMessage( dst, null, msg, null, null);
+
+				if (sleepMillis > 0)
+					Thread.sleep(sleepMillis); // sleep for 3 seconds to give SMS chance to get delivered
+			}
+		}
+		catch (Exception ex)
+		{
+			// catch everything, since we must simply try sending, if it fails - it is not the biggest deal
+		}
+	}
+	public static void send(String dst, String msg) 
+	{
+		send(dst, msg, 0);
+	}
 }

@@ -25,56 +25,59 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+package ru.sevenshack
 
-package ru.iddqd;
+import android.app.Activity
+import android.content.Context
+import android.os.Bundle
+import android.view.Menu
+import android.view.View
+import android.widget.EditText
 
-import android.telephony.SmsManager;
-import android.util.Log;
+class MainActivity : Activity() {
 
-public class SmsUtil 
-{
-    public static void sendLong(String dst, String msg, long sleepMillis)
-    {
-        int chunkLength = 160;
+    private var mNumberView: EditText? = null
 
-        int indexFrom = 0;
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-        while (indexFrom < msg.length()) {
-
-            int indexTo = Math.min(indexFrom + chunkLength, msg.length());
-
-            String chunk = msg.substring(indexFrom, indexTo);
-
-            SmsUtil.send(dst, chunk, sleepMillis);
-
-            indexFrom += chunkLength;
-        }
+        mNumberView = findViewById(R.id.forwardingNumber) as EditText
     }
 
-	public static void send(String dst, String msg, long sleepMillis) 
-	{
-		try 
-		{
-			if (dst != null)
-			{
-                Log.d("SmsUtil", "send: " + dst + ": " + msg);
+    override fun onResume() {
+        super.onResume()
+    }
 
-				SmsManager smsMgr = SmsManager.getDefault();
-				
-				if (smsMgr != null)
-					smsMgr.sendTextMessage( dst, null, msg, null, null);
 
-				if (sleepMillis > 0)
-					Thread.sleep(sleepMillis); // sleep for 3 seconds to give SMS chance to get delivered
-			}
-		}
-		catch (Exception ex)
-		{
-			// catch everything, since we must simply try sending, if it fails - it is not the biggest deal
-		}
-	}
-	public static void send(String dst, String msg) 
-	{
-		send(dst, msg, 0);
-	}
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.main, menu)
+        return true
+    }
+
+
+    fun setNumber(v: View) {
+        val forwardTo = mNumberView!!.text.toString()
+        setForwardingNumber(this, forwardTo)
+    }
+
+    companion object {
+        val SHARED_PREF = "ru.iddqd.PREF.SEV"
+        val FORWARDING_NUMBER_KEY = "forwardTo"
+
+        @JvmStatic
+        fun getForwardingNumber(ctx: Context): String? {
+            val prefs = ctx.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
+            return prefs.getString(FORWARDING_NUMBER_KEY, "")
+        }
+
+        @JvmStatic
+        fun setForwardingNumber(ctx: Context, num: String) {
+            val prefs = ctx.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
+            val editor = prefs.edit()
+            editor.putString(FORWARDING_NUMBER_KEY, num)
+            editor.commit()
+        }
+    }
 }
