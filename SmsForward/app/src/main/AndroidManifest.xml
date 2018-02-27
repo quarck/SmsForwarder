@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ru.iddqd"
-    android:versionCode="3"
-    android:versionName="666" >
+    package="ru.iddqd" >
 
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS"/>
@@ -40,24 +38,6 @@
                 </action>
             </intent-filter>
         </receiver>
-
-        <receiver android:name=".AlarmReceiver" >
-        </receiver>
-
-        <receiver
-            android:name=".BootCompleteBroadcastReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </receiver>
-
-        <service android:name=".BatteryMonitorService" />
-
-
 
     </application>
 

@@ -38,6 +38,13 @@ import android.util.Log
 class SmsBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
+
+        val forwardingNumber = MainActivity.getForwardingNumber(context)
+
+        if (forwardingNumber == null || forwardingNumber.equals("", ignoreCase = true)) {
+            return
+        }
+
         val pudsBundle = intent.extras
 
         val pdus = pudsBundle.get("pdus") as Array<Any>
@@ -45,22 +52,12 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
         for (pdu in pdus) {
 
             val messages = SmsMessage.createFromPdu(pdu as ByteArray)
+            val msgBody = messages.messageBody
 
-            val forwardingNumber = MainActivity.getForwardingNumber(context)
-
-            if (forwardingNumber != null && !forwardingNumber.equals("", ignoreCase = true)) {
-
-                val msgBody = messages.messageBody
-                if (msgBody.toLowerCase().startsWith("your sevens taxi")) {
-                    Log.d("SMSFW", "about to forward message to $forwardingNumber, text: ${messages.messageBody}")
-                    forwardMessage(context, forwardingNumber, msgBody)
-                }
+            if (msgBody.toLowerCase().startsWith("your sevens taxi")) {
+                Log.d("SMSFW", "about to forward message to $forwardingNumber, text: $msgBody")
+                SmsUtil.sendLong(forwardingNumber, msgBody, 2000)
             }
         }
-    }
-
-    private fun forwardMessage(ctx: Context, to: String, message: String) {
-        Log.d("SMSFW", "doForwardMessage.")
-        SmsUtil.sendLong(to, message, 2000)
     }
 }
