@@ -10,16 +10,7 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="Show only selected application" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f9c15a21-01f0-4453-90d9-5dc68daabd7a" name="Default" comment="">
-      <change type="MOVED" beforePath="$PROJECT_DIR$/app/src/main/java/ru/iddqd/MainActivity.kt" afterPath="$PROJECT_DIR$/app/src/main/java/ru/sevenshack/MainActivity.kt" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/app/src/main/java/ru/iddqd/SmsBroadcastReceiver.kt" afterPath="$PROJECT_DIR$/app/src/main/java/ru/sevenshack/SmsBroadcastReceiver.kt" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/app/src/main/java/ru/iddqd/SmsUtil.java" afterPath="$PROJECT_DIR$/app/src/main/java/ru/sevenshack/SmsUtil.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/app/src/main/java/ru/iddqd/SysUtils.kt" afterPath="$PROJECT_DIR$/app/src/main/java/ru/sevenshack/SysUtils.kt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/build.gradle" afterPath="$PROJECT_DIR$/app/build.gradle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" />
-    </list>
+    <list default="true" id="f9c15a21-01f0-4453-90d9-5dc68daabd7a" name="Default" comment="" />
     <ignored path="SmsForward.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -99,8 +90,8 @@
       <file leaf-file-name="SmsBroadcastReceiver.kt" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/ru/sevenshack/SmsBroadcastReceiver.kt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="439">
-              <caret line="57" column="56" lean-forward="false" selection-start-line="57" selection-start-column="56" selection-end-line="57" selection-end-column="56" />
+            <state relative-caret-position="133">
+              <caret line="39" column="0" lean-forward="true" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
               <folding>
                 <element signature="e#1641#1802#0" expanded="true" />
               </folding>
@@ -3012,8 +3003,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/ru/sevenshack/SmsBroadcastReceiver.kt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="439">
-          <caret line="57" column="56" lean-forward="false" selection-start-line="57" selection-start-column="56" selection-end-line="57" selection-end-column="56" />
+        <state relative-caret-position="133">
+          <caret line="39" column="0" lean-forward="true" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
           <folding>
             <element signature="e#1641#1802#0" expanded="true" />
           </folding>
