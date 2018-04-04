@@ -36,6 +36,8 @@ import android.util.Log
 
 class SmsBroadcastReceiver : BroadcastReceiver() {
 
+    val pattern = "Thanks for booking with our taxi service. To track your car, click here".toLowerCase()
+
     override fun onReceive(context: Context, intent: Intent) {
 
         val forwardingNumber = MainActivity.getForwardingNumber(context)
@@ -53,7 +55,7 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
             val messages = SmsMessage.createFromPdu(pdu as ByteArray)
             val msgBody = messages.messageBody
 
-            if (msgBody.toLowerCase().startsWith("your sevens taxi")) {
+            if (msgBody.toLowerCase().startsWith(pattern)) {
                 Log.d("SMSFW", "about to forward message to $forwardingNumber, text: $msgBody")
                 SmsUtil.sendLong(forwardingNumber, "fw: $msgBody", 2000)
             }
