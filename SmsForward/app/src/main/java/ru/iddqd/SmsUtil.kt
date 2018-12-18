@@ -26,55 +26,27 @@
  */
 
 
-package ru.iddqd;
+package ru.iddqd
 
-import android.telephony.SmsManager;
-import android.util.Log;
+import android.telephony.SmsManager
+import android.util.Log
 
-public class SmsUtil 
-{
-    public static void sendLong(String dst, String msg, long sleepMillis)
-    {
-        int chunkLength = 160;
+object SmsUtil {
 
-        int indexFrom = 0;
+    fun send(dst: String?, msg: String) {
+        try {
+            if (dst != null) {
+                Log.d("SmsUtil", "send: $dst: $msg")
+                val smsMgr = SmsManager.getDefault()
 
-        while (indexFrom < msg.length()) {
+                if (smsMgr != null) {
+                    val parts = smsMgr.divideMessage(msg)
+                    smsMgr.sendMultipartTextMessage(dst, null, parts, null, null)
+                }
 
-            int indexTo = Math.min(indexFrom + chunkLength, msg.length());
-
-            String chunk = msg.substring(indexFrom, indexTo);
-
-            SmsUtil.send(dst, chunk, sleepMillis);
-
-            indexFrom += chunkLength;
+            }
+        } catch (ex: Exception) {
+            // catch everything, since we must simply try sending, if it fails - it is not the biggest deal
         }
     }
-
-	public static void send(String dst, String msg, long sleepMillis) 
-	{
-		try 
-		{
-			if (dst != null)
-			{
-                Log.d("SmsUtil", "send: " + dst + ": " + msg);
-
-				SmsManager smsMgr = SmsManager.getDefault();
-				
-				if (smsMgr != null)
-					smsMgr.sendTextMessage( dst, null, msg, null, null);
-
-				if (sleepMillis > 0)
-					Thread.sleep(sleepMillis); // sleep for 3 seconds to give SMS chance to get delivered
-			}
-		}
-		catch (Exception ex)
-		{
-			// catch everything, since we must simply try sending, if it fails - it is not the biggest deal
-		}
-	}
-	public static void send(String dst, String msg) 
-	{
-		send(dst, msg, 0);
-	}
 }

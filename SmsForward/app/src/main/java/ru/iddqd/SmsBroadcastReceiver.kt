@@ -32,28 +32,34 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Telephony
 import android.telephony.SmsMessage
 import android.util.Log
 
 class SmsBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val pudsBundle = intent.extras
+        try {
+            val pudsBundle = intent.extras
 
-        val pdus = pudsBundle.get("pdus") as Array<Any>
+            val pdus = pudsBundle.get("pdus") as Array<Any>
 
-        for (pdu in pdus) {
+            for (pdu in pdus) {
 
-            val messages = SmsMessage.createFromPdu(pdu as ByteArray)
+                val messages = SmsMessage.createFromPdu(pdu as ByteArray)
 
-            val forwardingNumber = MainActivity.getForwardingNumber(context)
+                val forwardingNumber = MainActivity.getForwardingNumber(context)
 
-            if (forwardingNumber != null && !forwardingNumber.equals("", ignoreCase = true)) {
+                if (forwardingNumber != null && !forwardingNumber.equals("", ignoreCase = true)) {
 
-                Log.d("SMSFW", "about to forward message to $forwardingNumber, text: ${messages.messageBody}")
+                    Log.d("SMSFW", "about to forward message to $forwardingNumber, text: ${messages.messageBody}")
 
-                forwardMessage(context, forwardingNumber, messages)
+                    forwardMessage(context, forwardingNumber, messages)
+                }
             }
+        }
+        catch (ex: Exception) {
+
         }
     }
 
@@ -63,18 +69,14 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
         Log.d("SMSFW", "forwardMessage: from=$from, to=$to")
 
         if (from != null && from == to) {
-            doReply(ctx, to, message)
+            // skip
         } else {
-            val contacts = Contacts(ctx)
-            val code = contacts.storeContact(from)
-            val isBanned = contacts.isBanned(from)
-            if (!isBanned)
-                doForwardMessage(ctx, code, from, to, message)
+            doForwardMessage(ctx, from, to, message)
         }
 
     }
 
-    private fun doForwardMessage(ctx: Context, code: String?, from: String, to: String, message: SmsMessage) {
+    private fun doForwardMessage(ctx: Context, from: String, to: String, message: SmsMessage) {
         //		if (to.eq)
         Log.d("SMSFW", "doForwardMessage.")
 
@@ -95,10 +97,9 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
 
         if (credits > 0) {
 
-            val prefix = from + (code?.let{ " [$it]"} ?: "") + ": "
-            val msgBody = prefix + message.messageBody
+            val msgBody = from +  ": " + message.messageBody
 
-            SmsUtil.sendLong(to, msgBody, 2000)
+            SmsUtil.send(to, msgBody)
 
             credits -= 3600
 
@@ -106,53 +107,5 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
         }
 
         MainActivity.setLastSmsCredits(ctx, credits)
-    }
-
-    private fun doReply(ctx: Context, to: String, message: SmsMessage)
-    {
-        Log.d("SMSFW", "doReply: to=$to")
-
-        val msgBody: String? = message.messageBody
-
-        if (msgBody == null)
-            return
-
-        Log.d("SMSFW", "doReply: to=$to, msgBody=$msgBody")
-
-        val pos = msgBody.indexOf(" ")
-
-        if (pos >= 3 && pos <= 6) {
-
-            val code = msgBody.substring(0, pos)
-            val msg = msgBody.substring(pos+1)
-
-            Log.d("SMSFW", "doReply: code=$code, msg=$msg")
-
-            val contacts = Contacts(ctx)
-
-            if (code.startsWith("!")) {
-                if (code == "!ban" || code == "!unban") {
-                    val contact = contacts.lookupContactByCode(msg.toUpperCase())
-                    if (contact != null) {
-                        val isBanned = code == "!ban"
-                        contacts.setBanned(contact, isBanned)
-
-                        if (isBanned)
-                            SmsUtil.sendLong(to, "Banned: $contact", 1000)
-                        else
-                            SmsUtil.sendLong(to, "Un-banned: $contact", 1000)
-                    }
-                }
-            } else {
-                val contact = contacts.lookupContactByCode(code.toUpperCase())
-                if (contact != null) {
-                    Log.d("SMSFW", "doReply: sending to $contact")
-                    SmsUtil.sendLong(contact, msg, 1000)
-                } else {
-                    Log.d("SMSFW", "doReply: contact not found")
-                    SmsUtil.sendLong(to, "Unrecognized: $code", 1000)
-                }
-            }
-        }
     }
 }
