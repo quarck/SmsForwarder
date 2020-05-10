@@ -35,6 +35,9 @@ import android.os.Bundle
 import android.provider.Telephony
 import android.telephony.SmsMessage
 import android.util.Log
+import java.lang.StringBuilder
+import java.text.SimpleDateFormat
+import java.util.*
 
 class SmsBroadcastReceiver : BroadcastReceiver() {
 
@@ -66,9 +69,14 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
 
     private fun forwardMessage(ctx: Context, apiKey: String, userId: String, message: SmsMessage) {
 
-        val time = System.currentTimeMillis() / 1000
-        val msgBody = "Sms message from " + (message.originatingAddress ?: "null") +  ", received at  " + time + ", text: " + message.messageBody
-
-        TelegramUtils.sendMessage(apiKey, userId, msgBody)
+        val sb = StringBuilder()
+        sb.append("SMS:\n")
+        sb.append("DateTime: ")
+        sb.append(SimpleDateFormat.getDateTimeInstance().format(Date()))
+        sb.append("\nReceived from: ")
+        sb.append(message.originatingAddress ?: "null")
+        sb.append("\nMessage:\n")
+        sb.append(message.messageBody)
+        TelegramUtils.sendMessage(apiKey, userId, sb.toString())
     }
 }

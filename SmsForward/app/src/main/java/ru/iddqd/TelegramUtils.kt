@@ -6,6 +6,8 @@ import android.util.Log
 import java.net.HttpURLConnection
 import java.net.URL
 import java.io.*
+import java.lang.Exception
+import java.util.regex.Pattern
 import javax.net.ssl.HttpsURLConnection
 
 
@@ -32,19 +34,29 @@ object TelegramUtils {
 
         background {
             val url = URL(fullUrl)
-            val urlConnection = url.openConnection() as HttpURLConnection
-            try {
-                readStream(BufferedInputStream(urlConnection.getInputStream()))
-            } finally {
-                urlConnection.disconnect()
+
+            while (true) {
+                try {
+                    val urlConnection = url.openConnection() as HttpURLConnection
+                    try {
+                        val inputStream = BufferedInputStream(urlConnection.getInputStream())
+                        if (inputStream != null) {
+                            val replyBytes = inputStream.readBytes()
+                            val reply = replyBytes.toString(Charsets.UTF_8)
+                            if (!reply.isEmpty()) {
+                                Log.d("SMS_FW", "Done sending: ${reply}")
+                                break
+                            }
+                        }
+                    } finally {
+                        urlConnection.disconnect()
+                    }
+                }
+                catch (ex: Exception) {
+                }
+                Thread.sleep(120000)
             }
         }
 
-    }
-    private fun readStream(bufferedInputStream: BufferedInputStream) {
-        while (bufferedInputStream.available() > 0) {
-            val reply = bufferedInputStream.readBytes().toString()
-            Log.d("SMS_FW", "reply: $reply")
-        }
     }
 }
