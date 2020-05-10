@@ -3,10 +3,11 @@ apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         applicationId "ru.iddqd.sevens"
-        minSdkVersion 17
+        minSdkVersion 23
         targetSdkVersion 28
 
         versionCode 1
@@ -27,6 +28,5 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }

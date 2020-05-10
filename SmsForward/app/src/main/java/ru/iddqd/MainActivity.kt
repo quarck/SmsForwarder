@@ -40,15 +40,15 @@ import android.widget.EditText
 
 class MainActivity : Activity() {
 
-    private var mNumberView: EditText? = null
+    private var apiKeyText: EditText? = null
+    private var userIdText: EditText? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mNumberView = findViewById(R.id.forwardingNumber) as EditText
-
-        AlarmReceiver.schedule(this, 60 * 30 * 1000) // every 30 minutes approx
+        apiKeyText = findViewById(R.id.apiKey) as EditText
+        userIdText = findViewById(R.id.userId) as EditText
     }
 
     override fun onResume() {
@@ -64,76 +64,52 @@ class MainActivity : Activity() {
 
 
     fun setNumber(v: View) {
-        val forwardTo = mNumberView!!.text.toString()
+        val apiKey = apiKeyText!!.text.toString()
+        val userId = userIdText!!.text.toString()
+        setApiKey(this, apiKey)
+        setUserId(this, userId)
+    }
 
-        setForwardingNumber(this, forwardTo)
+    fun sendTest(v: View) {
+        var apiKey = apiKeyText!!.text.toString()
+        var userId = userIdText!!.text.toString()
+        if (apiKey.isNullOrEmpty())
+            apiKey = getApiKey(this) ?: ""
+        if (userId.isNullOrEmpty())
+            userId = getUserId(this) ?: ""
+        TelegramUtils.sendMessage(apiKey, userId, "Test message!")
     }
 
     companion object {
         val SHARED_PREF = "ru.iddqd.PREF"
-        val FORWARDING_NUMBER_KEY = "forwardTo"
-        val LAST_SMS_TIME_KEY = "lastSms"
-        val LAST_CREDITS_KEY = "lastCredits"
-        val LAST_LOW_POWER_SMS_TIME_KEY = "lastLowPowerSms"
+        val TELEGRAM_API_KEY = "api_key"
+        val TELEGRAM_USER_ID = "user_id"
 
         @JvmStatic
-        fun getForwardingNumber(ctx: Context): String? {
+        fun getApiKey(ctx: Context): String? {
             val prefs = ctx.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
-            return prefs.getString(FORWARDING_NUMBER_KEY, "")
+            return prefs.getString(TELEGRAM_API_KEY, "")
         }
 
         @JvmStatic
-        fun setForwardingNumber(ctx: Context, num: String) {
+        fun setApiKey(ctx: Context, num: String) {
             val prefs = ctx.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
             val editor = prefs.edit()
-            editor.putString(FORWARDING_NUMBER_KEY, num)
+            editor.putString(TELEGRAM_API_KEY, num)
             editor.commit()
         }
 
-
         @JvmStatic
-        fun getLastSmsTime(ctx: Context): Long {
+        fun getUserId(ctx: Context): String? {
             val prefs = ctx.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
-            return prefs.getLong(LAST_SMS_TIME_KEY, 0)
+            return prefs.getString(TELEGRAM_USER_ID, "")
         }
 
         @JvmStatic
-        fun setLastSmsTime(ctx: Context, time: Long) {
+        fun setUserId(ctx: Context, num: String) {
             val prefs = ctx.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
             val editor = prefs.edit()
-            editor.putLong(LAST_SMS_TIME_KEY, time)
-            editor.commit()
-        }
-
-
-        @JvmStatic
-        fun getLastSmsCredits(ctx: Context): Long {
-            val prefs = ctx.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
-            return prefs.getLong(LAST_CREDITS_KEY, (3600 * 20).toLong()) // 1 sms consumes 3600 credits. Each 1 seconds since last msg adds up one credit, but not exceeding total amount of 36000.
-            // So not allowing more than 1 sms/hr on average, 
-            // but allowing to "burst" these messages in a short period of time if necessary (but no more than 20 msgs in row)
-        }
-
-        @JvmStatic
-        fun setLastSmsCredits(ctx: Context, time: Long) {
-            val prefs = ctx.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
-            val editor = prefs.edit()
-            editor.putLong(LAST_CREDITS_KEY, time)
-            editor.commit()
-        }
-
-
-        @JvmStatic
-        fun getLastLowBatterySms(ctx: Context): Long {
-            val prefs = ctx.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
-            return prefs.getLong(LAST_LOW_POWER_SMS_TIME_KEY, 0)
-        }
-
-        @JvmStatic
-        fun setLastLowBatterySms(ctx: Context, time: Long) {
-            val prefs = ctx.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
-            val editor = prefs.edit()
-            editor.putLong(LAST_LOW_POWER_SMS_TIME_KEY, time)
+            editor.putString(TELEGRAM_USER_ID, num)
             editor.commit()
         }
 

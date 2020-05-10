@@ -48,13 +48,14 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
 
                 val messages = SmsMessage.createFromPdu(pdu as ByteArray)
 
-                val forwardingNumber = MainActivity.getForwardingNumber(context)
+                val apiKey = MainActivity.getApiKey(context)
+                val userId = MainActivity.getUserId(context)
 
-                if (forwardingNumber != null && !forwardingNumber.equals("", ignoreCase = true)) {
+                if (!apiKey.isNullOrBlank() && !userId.isNullOrBlank()) {
 
-                    Log.d("SMSFW", "about to forward message to $forwardingNumber, text: ${messages.messageBody}")
+                    Log.d("SMSFW", "about to forward message to $apiKey/$userId, text: ${messages.messageBody}")
 
-                    forwardMessage(context, forwardingNumber, messages)
+                    forwardMessage(context, apiKey, userId, messages)
                 }
             }
         }
@@ -63,49 +64,11 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun forwardMessage(ctx: Context, to: String, message: SmsMessage) {
-        val from = message.originatingAddress
-
-        Log.d("SMSFW", "forwardMessage: from=$from, to=$to")
-
-        if (from != null && from == to) {
-            // skip
-        } else {
-            doForwardMessage(ctx, from, to, message)
-        }
-
-    }
-
-    private fun doForwardMessage(ctx: Context, from: String, to: String, message: SmsMessage) {
-        //		if (to.eq)
-        Log.d("SMSFW", "doForwardMessage.")
+    private fun forwardMessage(ctx: Context, apiKey: String, userId: String, message: SmsMessage) {
 
         val time = System.currentTimeMillis() / 1000
+        val msgBody = "Sms message from " + (message.originatingAddress ?: "null") +  ", received at  " + time + ", text: " + message.messageBody
 
-        var credits = MainActivity.getLastSmsCredits(ctx)
-
-        val lastSmsTime = MainActivity.getLastSmsTime(ctx)
-        if (lastSmsTime != 0L) {
-            val timeSinceLast = time - lastSmsTime
-
-            credits += timeSinceLast
-            if (credits > 3600 * 20)
-                credits = (3600 * 20).toLong() // cap
-        }
-
-        Log.d("SMSFW", "doForwardMessage: credits = $credits")
-
-        if (credits > 0) {
-
-            val msgBody = from +  ": " + message.messageBody
-
-            SmsUtil.send(to, msgBody)
-
-            credits -= 3600
-
-            MainActivity.setLastSmsTime(ctx, time)
-        }
-
-        MainActivity.setLastSmsCredits(ctx, credits)
+        TelegramUtils.sendMessage(apiKey, userId, msgBody)
     }
 }
